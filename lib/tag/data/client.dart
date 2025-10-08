@@ -24,6 +24,26 @@ class TagClient {
       .then(unwrapRailsArray)
       .then((response) => response.data.map<Tag>(E621Tag.fromJson).toList());
 
+  Future<List<TagPreview>> preview({
+    required String tags,
+    bool? force,
+    CancelToken? cancelToken,
+  }) => dio
+      .post(
+        '/tags/preview.json',
+        data: {'tags': tags},
+        options: forceOptions(force),
+        cancelToken: cancelToken,
+      )
+      .then(unwrapRailsArray)
+      .then(
+        (response) => response.data
+            .map<TagPreview>(
+              (json) => TagPreview.fromJson(json as Map<String, dynamic>),
+            )
+            .toList(),
+      );
+
   Future<List<Tag>> autocomplete({
     String? search,
     int? limit,

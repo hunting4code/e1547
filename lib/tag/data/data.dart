@@ -6,5 +6,6 @@ export 'json.dart';
 export 'map.dart';
 export 'node.dart';
 export 'parser.dart';
+export 'preview.dart';
 export 'regex.dart';
 export 'tag.dart';

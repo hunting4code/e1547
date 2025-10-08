@@ -1,5 +1,4 @@
 import 'package:e1547/post/post.dart';
-import 'package:e1547/shared/shared.dart';
 import 'package:e1547/tag/tag.dart';
 import 'package:e1547/user/user.dart';
 import 'package:flutter/material.dart';
@@ -79,12 +78,7 @@ class ArtistName extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Map<String, List<String>> tags = context
-        .select<PostEditingController?, Map<String, List<String>>>(
-          (value) => value?.value?.tags ?? post.tags,
-        );
-
-    List<String> artists = filterArtists((tags)['artist'] ?? []);
+    List<String> artists = filterArtists(post.tags['artist'] ?? []);
     if (artists.isNotEmpty) {
       return OverflowBar(
         children: [

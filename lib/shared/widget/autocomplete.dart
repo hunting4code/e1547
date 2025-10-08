@@ -5,13 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
+// TODO: This was built with narrow assumptions that we now pay for.
+// The autocomplete should be more configurable, with better defaults.
+// Cutout should be applied externally, etc.
 class AutocompleteTextField<T> extends StatelessWidget {
   const AutocompleteTextField({
     super.key,
     required this.onSelected,
     required this.suggestionsCallback,
     required this.itemBuilder,
-    required this.submit,
+    this.submit,
     this.controller,
     this.direction,
     this.readOnly = false,
@@ -22,9 +25,11 @@ class AutocompleteTextField<T> extends StatelessWidget {
     this.textInputAction,
     this.focusNode,
     this.inputFormatters,
+    this.maxLines = 1,
+    this.cutoutForFab = true,
   });
 
-  final SubmitString submit;
+  final SubmitString? submit;
   final TextEditingController? controller;
   final VerticalDirection? direction;
   final bool readOnly;
@@ -33,11 +38,13 @@ class AutocompleteTextField<T> extends StatelessWidget {
   final TextInputAction? textInputAction;
   final FocusNode? focusNode;
   final List<TextInputFormatter>? inputFormatters;
+  final int? maxLines;
   final ValueSetter<T> onSelected;
   final Widget Function(BuildContext context, T value) itemBuilder;
   final FutureOr<List<T>?> Function(String search) suggestionsCallback;
   final bool autofocus;
   final bool private;
+  final bool cutoutForFab;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +56,7 @@ class AutocompleteTextField<T> extends StatelessWidget {
       hideOnSelect: false,
       builder: (context, controller, focusNode) => TextField(
         controller: controller,
-        autofocus: true,
+        autofocus: autofocus,
         focusNode: focusNode,
         inputFormatters: inputFormatters,
         decoration:
@@ -59,6 +66,7 @@ class AutocompleteTextField<T> extends StatelessWidget {
         textInputAction: textInputAction ?? TextInputAction.search,
         readOnly: readOnly,
         enableIMEPersonalizedLearning: !private,
+        maxLines: maxLines,
       ),
       decorationBuilder: (context, child) {
         Widget result = Card(
@@ -67,7 +75,7 @@ class AutocompleteTextField<T> extends StatelessWidget {
           child: child,
         );
 
-        if (hasFab) {
+        if (cutoutForFab && hasFab) {
           return ClipPath.shape(
             shape: const AutocompleteCutout(),
             child: result,

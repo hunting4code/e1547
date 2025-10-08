@@ -7,7 +7,6 @@ export 'fab.dart';
 export 'file.dart';
 export 'likes.dart';
 export 'pools.dart';
-export 'rating.dart';
 export 'relationships.dart';
 export 'sources.dart';
 export 'tags.dart';

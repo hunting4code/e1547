@@ -26,6 +26,7 @@ class TagSearchFilter extends StatelessWidget {
         labelText: state.filter.name,
         decoration: theme.decoration,
         focusNode: theme.focusNode,
+        autofocus: theme.primary,
         controller: controller,
         submit: (value) => state.onSubmit?.call(value),
       ),
