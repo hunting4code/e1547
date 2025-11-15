@@ -1,5 +1,4 @@
 import 'package:e1547/history/history.dart';
-import 'package:e1547/reply/reply.dart';
 import 'package:e1547/shared/shared.dart';
 import 'package:e1547/topic/topic.dart';
 import 'package:flutter/material.dart';
@@ -23,48 +22,18 @@ class TopicsPage extends StatelessWidget {
                 topics: controller.items!,
               ),
             ),
-            child: RefreshableDataPage(
+            child: AdaptiveScaffold(
               appBar: const DefaultAppBar(
                 title: Text('Topics'),
                 actions: [ContextDrawerButton()],
               ),
-              floatingActionButton: TopicsPageFloatingActionButton(
-                controller: controller,
-              ),
+              floatingActionButton: const TopicSearchFab(),
               drawer: const RouterDrawer(),
               endDrawer: ContextDrawer(
                 title: const Text('Topics'),
                 children: [TopicTagEditingTile(controller: controller)],
               ),
-              controller: controller,
-              child: ListenableBuilder(
-                listenable: controller,
-                builder: (context, _) => PagedListView(
-                  primary: true,
-                  padding: defaultListPadding,
-                  state: controller.state,
-                  fetchNextPage: controller.getNextPage,
-                  builderDelegate: defaultPagedChildBuilderDelegate<Topic>(
-                    onRetry: controller.getNextPage,
-                    itemBuilder: (context, item, index) => TopicTile(
-                      topic: item,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => RepliesPage(topic: item),
-                        ),
-                      ),
-                      onCountPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              RepliesPage(topic: item, orderByOldest: false),
-                        ),
-                      ),
-                    ),
-                    onEmpty: const Text('No topics'),
-                    onError: const Text('Failed to load topics'),
-                  ),
-                ),
-              ),
+              body: const TopicList(),
             ),
           ),
         ),
