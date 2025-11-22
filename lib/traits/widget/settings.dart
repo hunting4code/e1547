@@ -37,72 +37,7 @@ class DenyListPage extends StatelessWidget {
             valueListenable: client.traits,
             builder: (context, traits, child) {
               List<String> denylist = traits.denylist.toList();
-              return RefreshableLoadingPage(
-                onEmpty: const IconMessage(
-                  icon: Icon(Icons.check),
-                  title: Text('Your blacklist is empty'),
-                ),
-                onError: const IconMessage(
-                  icon: Icon(Icons.warning_amber),
-                  title: Text('Failed to load blacklist'),
-                ),
-                isError: false,
-                isLoading: false,
-                isBuilt: true,
-                isEmpty: denylist.isEmpty,
-                refreshHeader: const RefreshablePageDefaultHeader(
-                  completeText: 'refreshed blacklist',
-                  refreshingText: 'refreshing blacklist',
-                ),
-                child: (context) => ListView.builder(
-                  primary: true,
-                  padding: defaultActionListPadding.add(
-                    LimitedWidthLayout.of(context).padding,
-                  ),
-                  itemCount: denylist.length,
-                  itemBuilder: (context, index) => DenylistTile(
-                    tag: denylist[index],
-                    onEdit: () {
-                      String tag = denylist[index];
-                      PromptActions.of(context).show(
-                        context,
-                        buildEditTextField(
-                          context,
-                          value: tag,
-                          title: 'Edit tag',
-                          submit: (value) async {
-                            value = value.trim();
-                            try {
-                              if (value.isEmpty) {
-                                await client.accounts.push(
-                                  traits: traits.copyWith(
-                                    denylist: List.of(denylist)..remove(tag),
-                                  ),
-                                );
-                              } else {
-                                await client.accounts.push(
-                                  traits: traits.copyWith(
-                                    denylist: List.of(denylist)
-                                      ..[denylist.indexOf(tag)] = value,
-                                  ),
-                                );
-                              }
-                            } on ClientException {
-                              throw const ActionControllerException(
-                                message: 'Failed to update blacklist!',
-                              );
-                            }
-                          },
-                        ),
-                      );
-                    },
-                    onDelete: () => client.accounts.push(
-                      traits: traits.copyWith(
-                        denylist: denylist..remove(denylist[index]),
-                      ),
-                    ),
-                  ),
-                ),
+              return AdaptiveScaffold(
                 appBar: DefaultAppBar(
                   title: const Text('Blacklist'),
                   actions: [
@@ -138,14 +73,67 @@ class DenyListPage extends StatelessWidget {
                   ),
                   icon: const Icon(Icons.add),
                 ),
-                refresh: (refreshController) async {
-                  try {
+                body: PullToRefresh(
+                  onRefresh: () async {
                     await client.accounts.pull(force: true);
-                    refreshController.refreshCompleted();
-                  } on ClientException {
-                    refreshController.refreshFailed();
-                  }
-                },
+                  },
+                  child: denylist.isEmpty
+                      ? const Center(
+                          child: IconMessage(
+                            icon: Icon(Icons.check),
+                            title: Text('Your blacklist is empty'),
+                          ),
+                        )
+                      : ListView.builder(
+                          primary: true,
+                          padding: defaultActionListPadding.add(
+                            LimitedWidthLayout.of(context).padding,
+                          ),
+                          itemCount: denylist.length,
+                          itemBuilder: (context, index) => DenylistTile(
+                            tag: denylist[index],
+                            onEdit: () {
+                              String tag = denylist[index];
+                              PromptActions.of(context).show(
+                                context,
+                                buildEditTextField(
+                                  context,
+                                  value: tag,
+                                  title: 'Edit tag',
+                                  submit: (value) async {
+                                    value = value.trim();
+                                    try {
+                                      if (value.isEmpty) {
+                                        await client.accounts.push(
+                                          traits: traits.copyWith(
+                                            denylist: List.of(denylist)..remove(tag),
+                                          ),
+                                        );
+                                      } else {
+                                        await client.accounts.push(
+                                          traits: traits.copyWith(
+                                            denylist: List.of(denylist)
+                                              ..[denylist.indexOf(tag)] = value,
+                                          ),
+                                        );
+                                      }
+                                    } on ClientException {
+                                      throw const ActionControllerException(
+                                        message: 'Failed to update blacklist!',
+                                      );
+                                    }
+                                  },
+                                ),
+                              );
+                            },
+                            onDelete: () => client.accounts.push(
+                              traits: traits.copyWith(
+                                denylist: denylist..remove(denylist[index]),
+                              ),
+                            ),
+                          ),
+                        ),
+                ),
               );
             },
           ),
