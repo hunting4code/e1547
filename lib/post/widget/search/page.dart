@@ -57,7 +57,7 @@ class _PostsPageState extends State<PostsPage> {
         builder: (context, controller, child) => SelectionLayout<Post>(
           enabled: widget.canSelect,
           items: controller.items,
-          child: RefreshableDataPage.builder(
+          child: AdaptiveScaffold(
             appBar: PostSelectionAppBar(
               controller: widget.controller,
               child: widget.appBar,
@@ -65,20 +65,26 @@ class _PostsPageState extends State<PostsPage> {
             drawer: const RouterDrawer(),
             endDrawer: endDrawer(),
             floatingActionButton: floatingActionButton(),
-            builder: (context, child) =>
-                LimitedWidthLayout(child: TileLayout(child: child)),
-            controller: widget.controller,
-            child: (context) => CustomScrollView(
-              primary: true,
-              slivers: [
-                SliverPadding(
-                  padding: defaultActionListPadding,
-                  sliver: PostSliverDisplay(
-                    controller: widget.controller,
-                    displayType: widget.displayType ?? PostDisplayType.grid,
+            body: LimitedWidthLayout(
+              child: TileLayout(
+                child: PullToRefresh(
+                  onRefresh: () =>
+                      widget.controller.refresh(force: true, background: true),
+                  child: CustomScrollView(
+                    primary: true,
+                    slivers: [
+                      SliverPadding(
+                        padding: defaultActionListPadding,
+                        sliver: PostSliverDisplay(
+                          controller: widget.controller,
+                          displayType:
+                              widget.displayType ?? PostDisplayType.grid,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ),

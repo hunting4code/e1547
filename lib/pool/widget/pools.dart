@@ -32,7 +32,7 @@ class _PoolsPageState extends State<PoolsPage> with RouterDrawerEntryWidget {
                   posts: controller.thumbnails.items,
                 ),
               ),
-          child: RefreshableDataPage.builder(
+          child: AdaptiveScaffold(
             appBar: const DefaultAppBar(
               title: Text('Pools'),
               actions: [ContextDrawerButton()],
@@ -48,44 +48,46 @@ class _PoolsPageState extends State<PoolsPage> with RouterDrawerEntryWidget {
                 DrawerTagCounter(controller: controller.thumbnails),
               ],
             ),
-            controller: controller,
-            builder: (context, child) => AnimatedBuilder(
-              animation: context.watch<Settings>().tileSize,
-              builder: (context, child) {
-                return TileLayout(
-                  tileSize: context.watch<Settings>().tileSize.value,
-                  child: child!,
-                );
-              },
-              child: child,
-            ),
-            child: (context) => ListenableBuilder(
-              listenable: controller,
-              builder: (context, _) => PagedMasonryGridView<int, Pool>.count(
-                primary: true,
-                showNewPageProgressIndicatorAsGridChild: false,
-                showNewPageErrorIndicatorAsGridChild: false,
-                showNoMoreItemsIndicatorAsGridChild: false,
-                padding: defaultListPadding,
-                state: controller.state,
-                fetchNextPage: controller.getNextPage,
-                crossAxisCount: (TileLayout.of(context).crossAxisCount * 0.5)
-                    .round(),
-                builderDelegate: defaultPagedChildBuilderDelegate<Pool>(
-                  onRetry: controller.getNextPage,
-                  itemBuilder: (context, item, index) => ImageCacheSizeProvider(
-                    size: TileLayout.of(context).tileSize * 4,
-                    child: PoolTile(
-                      pool: item,
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => PoolPage(pool: item),
+            body: ValueListenableBuilder<int>(
+              valueListenable: context.watch<Settings>().tileSize,
+              builder: (context, value, child) =>
+                  TileLayout(tileSize: value, child: child!),
+              child: PullToRefresh(
+                onRefresh: () =>
+                    controller.refresh(force: true, background: true),
+                child: ListenableBuilder(
+                  listenable: controller,
+                  builder: (context, _) =>
+                      PagedMasonryGridView<int, Pool>.count(
+                        primary: true,
+                        showNewPageProgressIndicatorAsGridChild: false,
+                        showNewPageErrorIndicatorAsGridChild: false,
+                        showNoMoreItemsIndicatorAsGridChild: false,
+                        padding: defaultListPadding,
+                        state: controller.state,
+                        fetchNextPage: controller.getNextPage,
+                        crossAxisCount:
+                            (TileLayout.of(context).crossAxisCount * 0.5)
+                                .round(),
+                        builderDelegate: defaultPagedChildBuilderDelegate<Pool>(
+                          onRetry: controller.getNextPage,
+                          itemBuilder: (context, item, index) =>
+                              ImageCacheSizeProvider(
+                                size: TileLayout.of(context).tileSize * 4,
+                                child: PoolTile(
+                                  pool: item,
+                                  onPressed: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          PoolPage(pool: item),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          onEmpty: const Text('No pools'),
+                          onError: const Text('Failed to load pools'),
                         ),
                       ),
-                    ),
-                  ),
-                  onEmpty: const Text('No pools'),
-                  onError: const Text('Failed to load pools'),
                 ),
               ),
             ),

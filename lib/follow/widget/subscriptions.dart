@@ -37,28 +37,7 @@ class FollowsSubscriptionsPage extends StatelessWidget {
             child: SelectionLayout<Follow>(
               items: controller.items,
               child: PromptActions(
-                child: RefreshableDataPage.builder(
-                  controller: controller,
-                  builder: (context, child) => TileLayout(child: child),
-                  child: (context) => ListenableBuilder(
-                    listenable: controller,
-                    builder: (context, _) =>
-                        PagedAlignedGridView<int, Follow>.count(
-                          primary: true,
-                          padding: defaultActionListPadding,
-                          state: controller.state,
-                          fetchNextPage: controller.getNextPage,
-                          addAutomaticKeepAlives: false,
-                          builderDelegate: defaultPagedChildBuilderDelegate(
-                            onRetry: controller.getNextPage,
-                            itemBuilder: (context, item, index) =>
-                                FollowTile(follow: item),
-                            onEmpty: const Text('No subscriptions'),
-                            onError: const Text('Failed to load subscriptions'),
-                          ),
-                          crossAxisCount: TileLayout.of(context).crossAxisCount,
-                        ),
-                  ),
+                child: AdaptiveScaffold(
                   appBar: const FollowSelectionAppBar(
                     child: DefaultAppBar(
                       title: Text('Subscriptions'),
@@ -87,6 +66,30 @@ class FollowsSubscriptionsPage extends StatelessWidget {
                         type: FollowType.update,
                       );
                     },
+                  ),
+                  body: TileLayout(
+                    child: ListenableBuilder(
+                      listenable: controller,
+                      builder: (context, _) => PullToRefresh(
+                        onRefresh: () =>
+                            controller.refresh(force: true, background: true),
+                        child: PagedAlignedGridView<int, Follow>.count(
+                          primary: true,
+                          padding: defaultActionListPadding,
+                          state: controller.state,
+                          fetchNextPage: controller.getNextPage,
+                          addAutomaticKeepAlives: false,
+                          builderDelegate: defaultPagedChildBuilderDelegate(
+                            onRetry: controller.getNextPage,
+                            itemBuilder: (context, item, index) =>
+                                FollowTile(follow: item),
+                            onEmpty: const Text('No subscriptions'),
+                            onError: const Text('Failed to load subscriptions'),
+                          ),
+                          crossAxisCount: TileLayout.of(context).crossAxisCount,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),

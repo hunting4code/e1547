@@ -27,8 +27,7 @@ class FollowsBookmarkPage extends StatelessWidget {
             child: SelectionLayout<Follow>(
               items: controller.items,
               child: PromptActions(
-                child: RefreshableDataPage.builder(
-                  controller: controller,
+                child: AdaptiveScaffold(
                   appBar: const FollowSelectionAppBar(
                     child: DefaultAppBar(title: Text('Bookmarks')),
                   ),
@@ -44,12 +43,13 @@ class FollowsBookmarkPage extends StatelessWidget {
                       );
                     },
                   ),
-                  builder: (context, child) =>
-                      LimitedWidthLayout(child: TileLayout(child: child)),
-                  child: (context) => ListenableBuilder(
-                    listenable: controller,
-                    builder: (context, _) =>
-                        PagedAlignedGridView<int, Follow>.count(
+                  body: TileLayout(
+                    child: ListenableBuilder(
+                      listenable: controller,
+                      builder: (context, _) => PullToRefresh(
+                        onRefresh: () =>
+                            controller.refresh(force: true, background: true),
+                        child: PagedAlignedGridView<int, Follow>.count(
                           primary: true,
                           padding: defaultActionListPadding,
                           addAutomaticKeepAlives: false,
@@ -64,6 +64,8 @@ class FollowsBookmarkPage extends StatelessWidget {
                           ),
                           crossAxisCount: TileLayout.of(context).crossAxisCount,
                         ),
+                      ),
+                    ),
                   ),
                 ),
               ),
