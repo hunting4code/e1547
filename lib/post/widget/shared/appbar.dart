@@ -44,7 +44,7 @@ List<PopupMenuItem<VoidCallback>> postMenuUserActions(
         context: context,
         callback: () {
           PostController? controller = context.read<PostController?>();
-          int? cacheSize = context.read<ImageCacheSize>().size;
+          int? cacheSize = context.read<ImageCacheSize?>()?.size;
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => ImageCacheSizeProvider(

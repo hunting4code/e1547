@@ -49,9 +49,10 @@ class SourcesEditDisplay extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        Builder(
-          builder: (context) {
-            final sources = controller.text
+        ValueListenableBuilder(
+          valueListenable: controller,
+          builder: (context, value, child) {
+            final sources = value.text
                 .split('\n')
                 .where((s) => s.trim().isNotEmpty)
                 .toList();

@@ -60,7 +60,7 @@ abstract class PostEdit with _$PostEdit {
     sourceDiff.addAll(addedSource);
 
     if (sourceDiff.isNotEmpty) {
-      body.addEntries([MapEntry('post[source_diff]', sourceDiff.join(' '))]);
+      body.addEntries([MapEntry('post[source_diff]', sourceDiff.join('\n'))]);
     }
 
     if (post.relationships.parentId != parentId) {
